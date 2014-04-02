@@ -9,7 +9,7 @@ from collections import Counter
 This function reads, call the process function, finally writes to respective file.
 '''
 def main(file_i,file_d,file_p):
-    files = glob.glob(file_i+"/*")
+    files = glob.glob(file_i+"*")
     p = PreprocessUtils()
     tokenSet = []
     for singleFile in files:
