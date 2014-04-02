@@ -10,8 +10,8 @@ class PreprocessUtils():
         
     def XMLQueryParser(self,fileName):
         xmldoc = minidom.parse(fileName)
-        title = xmldoc.getElementsByTagName('title')[0].firstChild.data
-        description = xmldoc.getElementsByTagName('description')[0].firstChild.data
+        title = xmldoc.getElementsByTagName('title')[0].firstChild.data.encode('utf-8')
+        description = xmldoc.getElementsByTagName('description')[0].firstChild.data.encode('utf-8')
         return title.strip(), description.strip()
     
     def XMLPatentDocParser(self,fileName):
@@ -20,8 +20,8 @@ class PreprocessUtils():
         docWordList = []
         for node in xmldoc.getElementsByTagName('str'):
             if node.firstChild is not None:
-                tagName = str(node.attributes.item(0).value) # get the attribute name for str
-                tagValue = str(node.firstChild.nodeValue).strip() # get the value of the attribute
+                tagName = str(node.attributes.item(0).value.encode('utf-8')) # get the attribute name for str
+                tagValue = str(node.firstChild.nodeValue.encode('utf-8')).strip() # get the value of the attribute
             docZoneList[tagName] = tagValue
             docWordList.append(tagValue)
         return docZoneList, docWordList
@@ -44,9 +44,9 @@ class PreprocessUtils():
                     cleanup.append(l)
         return cleanup
     
-preprocessor = PreprocessUtils()
-title, description = preprocessor.XMLQueryParser('query/q1.xml')
-print "title: " + title
-print "description: " + description
+#preprocessor = PreprocessUtils()
+#title, description = preprocessor.XMLQueryParser('query/q1.xml')
+#print "title: " + title
+#print "description: " + description
 #preprocessor.XMLPatentDocParser('patsnap-corpus/EP0049154B2.xml')
 #preprocessor.LinguisticParser(list)
