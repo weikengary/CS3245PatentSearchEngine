@@ -1,6 +1,5 @@
 import nltk
 from xml.dom import minidom
-import string
 
 class PreprocessUtils():
 
@@ -10,19 +9,10 @@ class PreprocessUtils():
         self.wordNetLemmatizer = nltk.WordNetLemmatizer()
         
     def XMLQueryParser(self,fileName):
-        '''
-        Make it well-formed first
-        '''
-        lines = open(fileName, 'r').readlines()
-        lines[0] = lines[0].replace(lines[0] , lines[0] +"<doc>")
-        open(fileName, 'w').write(''.join(lines)+'</doc>')
-        '''
-        Then parse and read the file
-        '''
         xmldoc = minidom.parse(fileName)
         title = xmldoc.getElementsByTagName('title')[0].firstChild.data
         description = xmldoc.getElementsByTagName('description')[0].firstChild.data
-        return title, description
+        return title.strip(), description.strip()
     
     def XMLPatentDocParser(self,fileName):
         xmldoc = minidom.parse(fileName)
@@ -34,7 +24,7 @@ class PreprocessUtils():
                 tagValue = str(node.firstChild.nodeValue).strip() # get the value of the attribute
             docZoneList[tagName] = tagValue
             docWordList.append(tagValue)
-        return docZoneList,docWordList
+        return docZoneList, docWordList
     
     '''
     Takes in a list and returns a normalized list:
@@ -54,7 +44,9 @@ class PreprocessUtils():
                     cleanup.append(l)
         return cleanup
     
-#preprocessor = PreprocessUtils()
-#preprocessor.XMLQueryParser('query/q1.xml')
+preprocessor = PreprocessUtils()
+title, description = preprocessor.XMLQueryParser('query/q1.xml')
+print "title: " + title
+print "description: " + description
 #preprocessor.XMLPatentDocParser('patsnap-corpus/EP0049154B2.xml')
 #preprocessor.LinguisticParser(list)
