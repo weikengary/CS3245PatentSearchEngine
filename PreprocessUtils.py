@@ -1,5 +1,6 @@
 import nltk
 from xml.dom import minidom
+import csv
 
 class PreprocessUtils():
 
@@ -25,14 +26,7 @@ class PreprocessUtils():
             docZoneList[tagName] = tagValue
             docWordList.append(tagValue)
         return docZoneList, docWordList
-    
-    '''
-    Takes in a list and returns a normalized list:
-         - porter stemming
-         - lemmatize
-         - and remove stopwords, 
-         - remove words with len less than 3
-    '''
+
     def LinguisticParser(self, ls):
         ls = nltk.word_tokenize(" ".join(ls))
         cleanup = []
@@ -44,7 +38,17 @@ class PreprocessUtils():
                     cleanup.append(l)
         return cleanup
     
+    def IPCCodeCategoryParser(self):
+        IPCCodeDictionary = {}
+        with open('IPC-codes/codes.csv', 'rb') as csvfile:
+            reader = csv.reader(csvfile, delimiter=',')
+            for r in reader:
+                if len(r[0]) > 1 and len(r[1])>1:
+                    IPCCodeDictionary[r[0]] = (r[1]).strip()
+        return IPCCodeDictionary 
+    
 #preprocessor = PreprocessUtils()
+#preprocessor.IPCCodeCategoryParser()
 #title, description = preprocessor.XMLQueryParser('query/q1.xml')
 #print "title: " + title
 #print "description: " + description
