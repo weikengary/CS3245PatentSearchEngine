@@ -1,14 +1,13 @@
 import cPickle
-import pickle
 import sys
 from math import log10
 from math import sqrt
 from math import pow
-from operator  import itemgetter
+from operator    import itemgetter
+from collections import defaultdict
 from argparse  import ArgumentParser
-from DictEntry import dict_entry
-from collections     import defaultdict
 from PreprocessUtils import PreprocessUtils
+
 
 '''
 TASKS
