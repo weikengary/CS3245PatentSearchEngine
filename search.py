@@ -1,13 +1,9 @@
-#!/usr/bin/python
-import getopt
+import cPickle
+import pickle
 import sys
-import string
-import nltk
-import heapq
-import math
-import linecache
-
-import math
+from PreprocessUtils import PreprocessUtils
+from argparse        import ArgumentParser
+from DictEntry       import dict_entry
 
 '''
 TASKS
@@ -20,35 +16,33 @@ TASKS
 6. Results
 '''
 
+def main():
+    init()
 
-'''
-This function reads, call the process function, finally writes to respective file.
-'''
-def main(file_d,file_p,file_q,file_o):
-    return True
-    
-def usage():
-    print "usage: " + sys.argv[0] + " -d dictionary-file -p postings-file -q file-of-queries -o output-file-of-results"
+def get_args():
+    parser = ArgumentParser()
+    parser.add_argument('-d', help = 'dictionary file')
+    parser.add_argument('-p', help = 'postings file')
+    parser.add_argument('-q', help = 'query file')
+    parser.add_argument('-o', help = 'output of file of results')
+    args = parser.parse_args()
 
-file_d = file_p = file_q = file_o = None
-try:
-    opts, args = getopt.getopt(sys.argv[1:], 'd:p:q:o:')
-except getopt.GetoptError, err:
-    usage()
-    sys.exit(2)
-for o, a in opts:
-    if o == '-d':
-        file_d = a
-    elif o == '-p':
-        file_p = a
-    elif o == '-q':
-        file_q = a
-    elif o == '-o':
-        file_o = a
-    else:
-        assert False, "unhandled option"
-if file_d == None or file_p == None or file_q == None or file_o == None:
-    usage()
-    sys.exit(2)
+    if len(sys.argv) != 9:
+        parser.print_help()
+        sys.exit(1)
 
-main(file_d,file_p,file_q,file_o)
+    return args
+
+def init():
+    args = get_args()
+
+    dict_file     = open(args.d, 'r')
+    postings_file = open(args.p, 'r')
+    query_file    = open(args.q, 'r')
+    output_file   = open(args.o, 'w')
+
+    dictionary = pickle.load(dict_file)
+    print 'hello'
+
+# Start search.py
+main()

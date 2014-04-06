@@ -54,3 +54,6 @@ docs/_build/
 
 # Pycharm
 .idea/
+
+# Temp files
+intermediate_posting_list/

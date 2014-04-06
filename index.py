@@ -3,14 +3,12 @@ import getopt
 import sys
 import os
 import cPickle
+from DictEntry import dict_entry
 from PreprocessUtils import PreprocessUtils
 from collections import Counter
 intermediate_directory_name = 'intermediate_posting_list' #place to store intermediate(individual) posting list
 
-#define custom class for the entry in dictionary
-class dict_entry:
-    doc_freq = None
-    posting_pointer = None
+
 
 def translate_ipc(ipc_subclass_number, ipc_dict):
     if ipc_dict.has_key(ipc_subclass_number):
