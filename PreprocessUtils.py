@@ -1,6 +1,7 @@
 import nltk
 from xml.dom import minidom
 import csv
+import re
 
 class PreprocessUtils():
 
@@ -27,8 +28,8 @@ class PreprocessUtils():
             docWordList.append(tagValue)
         return docZoneList, docWordList
 
-    def LinguisticParser(self, ls):
-        ls = nltk.word_tokenize(" ".join(ls))
+    def LinguisticParser(self, sentence):
+        ls = re.split('\W',sentence)
         cleanup = []
         for l in ls:
             if l not in self.stopwordsList:
