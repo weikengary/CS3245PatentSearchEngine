@@ -109,6 +109,7 @@ def merge_posting_list(dictionary, posting_file):
 This function reads, call the process function, finally writes to respective file.
 '''
 def main(file_i,file_d,file_p):
+    doc_count = 0
     files = glob.glob(file_i+"*")
     p = PreprocessUtils()
     ipc_dict = p.IPCCodeCategoryParser()
@@ -124,6 +125,7 @@ def main(file_i,file_d,file_p):
         #index single document
         print 'indexing ' + docID
         index_document(dictionary, p, singleFile, docZoneList, ipc_dict)
+        doc_count += 1
 
     #merge temporary posting list together
     merge_posting_list(dictionary, file_p)
@@ -131,9 +133,9 @@ def main(file_i,file_d,file_p):
     #dump dictionary to dictionary.txt
     dictionary_stream = open(file_d, 'w')
     cPickle.dump(dictionary, dictionary_stream)
+    cPickle.dump(doc_count, dictionary_stream)
     dictionary_stream.close()
-        
-        
+
     return True
 
 def usage():
