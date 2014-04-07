@@ -5,7 +5,7 @@ from math import sqrt
 from math import pow
 from operator    import itemgetter
 from collections import defaultdict
-from argparse  import ArgumentParser
+from argparse    import ArgumentParser
 from PreprocessUtils import PreprocessUtils
 
 
@@ -48,10 +48,10 @@ def get_zone_weights():
 # Get and validate command line arguments
 def get_args():
     parser = ArgumentParser()
-    parser.add_argument('-d', help='dictionary file')
-    parser.add_argument('-p', help='postings file')
-    parser.add_argument('-q', help='query file')
-    parser.add_argument('-o', help='output of file of results')
+    parser.add_argument('-d', help = 'dictionary file')
+    parser.add_argument('-p', help = 'postings file')
+    parser.add_argument('-q', help = 'query file')
+    parser.add_argument('-o', help = 'output of file of results')
 
     args = parser.parse_args()
     if len(sys.argv) != 9:
@@ -72,7 +72,7 @@ def get_query():
 def search(query):
     scores = defaultdict(float)
     query_term_weights, query_normalization = process_query(query)
-    doc_weights_squared = defaultdict(float)
+    doc_weights_squared = defaultdict(float)  # For doc normalization factor
 
     for query_term, query_term_weight in query_term_weights.iteritems():
         postings = get_postings(query_term)
@@ -162,15 +162,16 @@ def get_dictionary():
     return dictionary, doc_count
 
 def get_postings(query_term):
+    postings = dict()
     dictionary, doc_count = get_dictionary()
 
-    if query_term not in dictionary:
-        return dict()
+    if query_term in dictionary:
+        with open(args.p, 'r') as postings_file:
+            seek_location = dictionary[query_term].posting_pointer
+            postings_file.seek(seek_location)
+            postings = cPickle.load(postings_file)
 
-    with open(args.p, 'r') as postings_file:
-        seek_location = dictionary[query_term].posting_pointer
-        postings_file.seek(seek_location)
-        return cPickle.load(postings_file)
+    return postings
 
 # Start search.py
 main()
