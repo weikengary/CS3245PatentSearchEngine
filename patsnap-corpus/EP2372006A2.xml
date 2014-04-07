@@ -152,3 +152,7 @@
 		0
 	</str>
 </doc>
+EP2372006A2
+Title    :Washing machine
+Subclass :D06F
+Abstract :A washing machine and a washing control method of the same that is capable of controlling laundry to be effectively washed with bubbles depending upon load of the washing machine and types of the laundry. The washing control method includes detecting the amount of load depending upon the weight of laundry, controlling the amount of wetting water according to the detected amount of load to wet the laundry, and generating bubbles to wash the laundry.

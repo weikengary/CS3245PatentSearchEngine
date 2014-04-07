@@ -143,3 +143,7 @@
 	</str>
 </doc>
 
+US5253080
+Title    :Picture signal binarization apparatus avoiding a need for memory devices or shift registers for storing binary picture signals before output
+Subclass :H04N
+Abstract :A picture signal binarization apparatus includes two comparators for converting an analog signal into a binary signal by comparing the analog signal with two different thresholds, two counters for counting inversions of the binary signal from each comparator and supplying a count signal indicative of the number of inversions of the binary signal from each of the comparators, and a selection part for selecting a binary signal from one of the comparators in response to the count signal supplied from one of the counters so that the selected binary signal is outputted as a subsequent output binary signal, the number of inversions indicated by the count signal from the one of the counters first reaching a predetermined value.
