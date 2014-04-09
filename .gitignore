@@ -57,6 +57,7 @@ docs/_build/
 
 # Temp files
 intermediate_posting_list/
+_temp*
 
 # Compiled python file
 *.pyc
