@@ -2,6 +2,7 @@ import nltk
 from xml.dom import minidom
 import csv
 import re
+from nltk.stem.snowball import SnowballStemmer
 
 class PreprocessUtils():
 
@@ -61,10 +62,11 @@ class PreprocessUtils():
             else:
                 verbSet.append(w[0])
         if len(nonVerbSet) != 0:
-            return nonVerbSet
+            return " ".join(nonVerbSet)
         else:
-            return verbSet
+            return " ".join(verbSet)
 
+#print(SnowballStemmer("porter").stem("washer"))
 #preprocessor = PreprocessUtils()
 #preprocessor.POSTagger(['car','feed', 'are', 'doing','run'])
 #preprocessor.IPCCodeCategoryParser()
