@@ -26,9 +26,12 @@ def main():
     query   = get_query()
     scores  = search(query)
 
+    output_stream = open(args.o,'w')
     for score_tuple in scores:
         print '{: <19}({})'.format(score_tuple[0], score_tuple[1])
+        output_stream.write(score_tuple[0] + ' ')
     print '{} matches found.'.format(len(scores))
+    output_stream.close()
 
     # To print without scores
     # -----------------------
@@ -73,7 +76,6 @@ def search(query):
     scores = defaultdict(float)
     query_term_weights, query_normalization = process_query(query)
     doc_weights_squared = defaultdict(float)  # For doc normalization factor
-
     for query_term, query_term_weight in query_term_weights.iteritems():
         postings = get_postings(query_term)
 

@@ -113,7 +113,7 @@ def main(file_i,file_d,file_p):
     files = glob.glob(file_i+"*")
     p = PreprocessUtils()
     ipc_dict = p.IPCCodeCategoryParser()
-    tokenSet = []
+
     dictionary = {} #dictionary that later will be stored to dictionary.txt with cPickle
     if not os.path.exists(intermediate_directory_name):
             os.makedirs(intermediate_directory_name) #temp directory to store temporary posting list
