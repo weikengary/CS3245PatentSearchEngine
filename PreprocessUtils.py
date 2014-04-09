@@ -14,7 +14,7 @@ class PreprocessUtils():
         xmldoc = minidom.parse(fileName)
         title = xmldoc.getElementsByTagName('title')[0].firstChild.data.encode('utf-8')
         description = xmldoc.getElementsByTagName('description')[0].firstChild.data.encode('utf-8')
-        return title.strip(), description.strip()
+        return self.POSTagger(title.strip().split()), self.POSTagger(description.strip().split())
     
     def XMLPatentDocParser(self,fileName):
         xmldoc = minidom.parse(fileName)
@@ -30,6 +30,7 @@ class PreprocessUtils():
 
     def LinguisticParser(self, sentence):
         ls = re.split('\W',sentence)
+        #ls = nltk.pos_tag(ls)
         cleanup = []
         for l in ls:
             if l not in self.stopwordsList:
@@ -48,7 +49,24 @@ class PreprocessUtils():
                     IPCCodeDictionary[r[0]] = (r[1]).strip()
         return IPCCodeDictionary 
     
+    
+    def POSTagger(self, list):
+        ls = nltk.pos_tag(list)
+        nonVerbSet = []
+        verbSet = []
+        for w in ls:
+            # tags from https://www.ling.upenn.edu/courses/Fall_2003/ling001/penn_treebank_pos.html
+            if w[1] != 'VBG' and w[1] != 'VBN' and w[1]!= 'V' and w[1]!='VB' and w[1]!='VBD' and w[1]!='VBP' and w[1]!= 'VBZ':
+                nonVerbSet.append(w[0])
+            else:
+                verbSet.append(w[0])
+        if len(nonVerbSet) != 0:
+            return nonVerbSet
+        else:
+            return verbSet
+
 #preprocessor = PreprocessUtils()
+#preprocessor.POSTagger(['car','feed', 'are', 'doing','run'])
 #preprocessor.IPCCodeCategoryParser()
 #title, description = preprocessor.XMLQueryParser('query/q1.xml')
 #print "title: " + title
