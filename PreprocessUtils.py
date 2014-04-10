@@ -16,7 +16,7 @@ class PreprocessUtils():
         title = xmldoc.getElementsByTagName('title')[0].firstChild.data.encode('utf-8')
         description = xmldoc.getElementsByTagName('description')[0].firstChild.data.encode('utf-8')
         return self.POSTagger(title.strip().split()), self.POSTagger(description.strip().split())
-    
+
     def XMLPatentDocParser(self,fileName):
         xmldoc = minidom.parse(fileName)
         docZoneList = {}

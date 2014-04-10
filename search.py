@@ -24,13 +24,14 @@ def main():
     global args
     args    = get_args()
     query   = get_query()
+    print query
     scores  = search(query)
 
     output_stream = open(args.o,'w')
-    for score_tuple in scores:
-        print '{: <19}({})'.format(score_tuple[0], score_tuple[1])
-        output_stream.write(score_tuple[0] + ' ')
-    print '{} matches found.'.format(len(scores))
+    # for score_tuple in scores:
+    #     print '{: <19}({})'.format(score_tuple[0], score_tuple[1])
+    #     # output_stream.write(score_tuple[0] + ' ')
+    # print '{} matches found.'.format(len(scores))
     output_stream.close()
 
     # To print without scores
