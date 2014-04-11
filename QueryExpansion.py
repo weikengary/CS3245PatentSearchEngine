@@ -9,6 +9,7 @@ import urllib
 import urllib2
 import HTMLParser
 import string
+import re
 
 def expand(query, google_result_count = 3):
     # Maximum value for google_result_count allowed is only 8
@@ -22,11 +23,20 @@ def expand(query, google_result_count = 3):
     results  = response['responseData']['results']
 
     for result in results:
+        print result['unescapedUrl']
         output = result['titleNoFormatting'].encode('ascii', 'ignore')
         output = ''.join(ch for ch in output if ch not in string.punctuation)
         query += ' ' + output
 
     return query
+
+# Return the patent abstract from the given url
+def get_abstract(url):
+    headers = { 'User-Agent' : 'Mozilla/5.0' }
+    request = urllib2.Request(url, None, headers)
+    html = urllib2.urlopen(request).read()
+    abstract = re.findall('\<div class=\"abstract\"\>(.*)\<\/div\>', html)[0]
+    print abstract
 
 def get_nouns(sentence):
     nouns = []
@@ -38,4 +48,5 @@ def get_nouns(sentence):
 
     return ' '.join(nouns)
 
-# print expand('Washers that clean laundry with bubbles')
+print get_abstract('http://www.google.com/patents/US5307649?dq=Washers+clean+laundry+bubbles&source=uds')
+print expand('Washers clean laundry bubbles')
