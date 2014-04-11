@@ -1,5 +1,6 @@
 import cPickle
 import sys
+import QueryExpansion
 from math import log10
 from math import sqrt
 from math import pow
@@ -7,25 +8,6 @@ from operator    import itemgetter
 from collections import defaultdict
 from argparse    import ArgumentParser
 from PreprocessUtils import PreprocessUtils
-
-import json
-import urllib
-import urllib2
-import HTMLParser
-import string
-
-def expand(query):
-    url = 'https://ajax.googleapis.com/ajax/services/search/patent?v=1.0&rsz=3&q=' + urllib.quote(query)
-    response = json.load(urllib2.urlopen(url))
-    results  = response['responseData']['results']
-
-    for result in results:
-        output = result['titleNoFormatting'].encode('ascii', 'ignore')
-        output = ''.join(ch for ch in output if ch not in string.punctuation)
-        query += ' ' + output
-
-    return query
-
 
 '''
 TASKS
@@ -86,7 +68,7 @@ def get_query():
     query = defaultdict()
     preprocessor = PreprocessUtils()
     query['title'], query['description'] = preprocessor.XMLQueryParser(args.q)
-    query['title'] = expand(query['title'])
+    query['title'] = QueryExpansion.expand(query['title'])
     return query;
 
 # Search for matching doc_ids using dictionary and postings and return scores for each document
