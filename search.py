@@ -8,6 +8,24 @@ from collections import defaultdict
 from argparse    import ArgumentParser
 from PreprocessUtils import PreprocessUtils
 
+import json
+import urllib
+import urllib2
+import HTMLParser
+import string
+
+def expand(query):
+    url = 'https://ajax.googleapis.com/ajax/services/search/patent?v=1.0&rsz=3&q=' + urllib.quote(query)
+    response = json.load(urllib2.urlopen(url))
+    results  = response['responseData']['results']
+
+    for result in results:
+        output = result['titleNoFormatting'].encode('ascii', 'ignore')
+        output = ''.join(ch for ch in output if ch not in string.punctuation)
+        query += ' ' + output
+
+    return query
+
 
 '''
 TASKS
@@ -24,14 +42,13 @@ def main():
     global args
     args    = get_args()
     query   = get_query()
-    print query
     scores  = search(query)
 
     output_stream = open(args.o,'w')
-    # for score_tuple in scores:
-    #     print '{: <19}({})'.format(score_tuple[0], score_tuple[1])
-    #     # output_stream.write(score_tuple[0] + ' ')
-    # print '{} matches found.'.format(len(scores))
+    for score_tuple in scores:
+        print '{: <19}({})'.format(score_tuple[0], score_tuple[1])
+        output_stream.write(score_tuple[0] + ' ')
+    print '{} matches found.'.format(len(scores))
     output_stream.close()
 
     # To print without scores
@@ -69,6 +86,7 @@ def get_query():
     query = defaultdict()
     preprocessor = PreprocessUtils()
     query['title'], query['description'] = preprocessor.XMLQueryParser(args.q)
+    query['title'] = expand(query['title'])
     return query;
 
 # Search for matching doc_ids using dictionary and postings and return scores for each document
@@ -133,6 +151,9 @@ def get_tf_idf(term, term_freq):
     if term not in dictionary or term_freq < 1:
         return 0
 
+    if dictionary[term].doc_freq is None:
+        return 0
+
     tf  = 1 + log10(term_freq)
     idf = log10(float(doc_count) / dictionary[term].doc_freq)
     return tf * idf
@@ -170,6 +191,8 @@ def get_postings(query_term):
 
     if query_term in dictionary:
         with open(args.p, 'r') as postings_file:
+            if dictionary[query_term].posting_pointer is None:
+                return postings
             seek_location = dictionary[query_term].posting_pointer
             postings_file.seek(seek_location)
             postings = cPickle.load(postings_file)
