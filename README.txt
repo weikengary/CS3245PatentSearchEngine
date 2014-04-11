@@ -5,13 +5,20 @@ This is the README file for U000000X's submission
 Indexing
 --------
 
+Structure of dictionary
 
-Searching
----------
+Structure of postings
 
 
 Query expansion
 ---------------
+Using the title part of the query, a search on google patent is performed and the top k result is collected.
+The title and abstract of these top k results on google patent searched is then used to expand the original
+query, which will be then be used to perform our own search.
+
+Searching
+---------
+
 
 
 == Files included with this submission ==
@@ -24,7 +31,7 @@ and formatted correctly.
 
 Please initial one of the following statements.
 
-[ ] I, A0120928H, A0087144A, A0087836M, A0083545B certify that I have 
+[X] I, A0120928H, A0087144A, A0087836M, A0083545B certify that I have 
 followed the CS 3245 InformationRetrieval class guidelines for homework 
 assignments.  In particular, I expressly vow that I have followed the Facebook 
 rule in discussing with others in doing the assignment and did not take notes 
@@ -39,7 +46,7 @@ I suggest that I should be graded as follows:
 
 <Please fill in>
 
-== References ==z
+== References ==
 Patent Retrieval - Allan Hanbury
 https://www.google.com/url?sa=t&rct=j&q=&esrc=s&source=web&cd=4&cad=rja&uact=8&ved=0CEMQFjAD&url=http%3A%2F%2Fallan.hanbury.eu%2Flib%2Fexe%2Ffetch.php%3Fmedia%3Dfntir_2013.pdf&ei=bEdBU4CALY2Hrgeb94C4Bw&usg=AFQjCNF2E669G51uaAJQ98ap3WTa-b7o1w&sig2=xI7ewvZVmjg68-nr1ol2RA&bvm=bv.64367178,d.bmk
 
