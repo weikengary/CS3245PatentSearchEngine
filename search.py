@@ -1,5 +1,6 @@
 import cPickle
 import sys
+import QueryExpansion
 from math import log10
 from math import sqrt
 from math import pow
@@ -7,7 +8,6 @@ from operator    import itemgetter
 from collections import defaultdict
 from argparse    import ArgumentParser
 from PreprocessUtils import PreprocessUtils
-
 
 '''
 TASKS
@@ -68,6 +68,7 @@ def get_query():
     query = defaultdict()
     preprocessor = PreprocessUtils()
     query['title'], query['description'] = preprocessor.XMLQueryParser(args.q)
+    query['title'] = QueryExpansion.expand(query['title'])
     return query;
 
 # Search for matching doc_ids using dictionary and postings and return scores for each document
@@ -132,6 +133,9 @@ def get_tf_idf(term, term_freq):
     if term not in dictionary or term_freq < 1:
         return 0
 
+    if dictionary[term].doc_freq is None:
+        return 0
+
     tf  = 1 + log10(term_freq)
     idf = log10(float(doc_count) / dictionary[term].doc_freq)
     return tf * idf
@@ -169,6 +173,8 @@ def get_postings(query_term):
 
     if query_term in dictionary:
         with open(args.p, 'r') as postings_file:
+            if dictionary[query_term].posting_pointer is None:
+                return postings
             seek_location = dictionary[query_term].posting_pointer
             postings_file.seek(seek_location)
             postings = cPickle.load(postings_file)
