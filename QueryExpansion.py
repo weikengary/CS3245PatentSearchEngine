@@ -10,8 +10,14 @@ import urllib2
 import HTMLParser
 import string
 
-def expand(query):
-    url = 'https://ajax.googleapis.com/ajax/services/search/patent?v=1.0&rsz=3&q=' + urllib.quote(query)
+def expand(query, google_result_count = 3):
+    # Maximum value for google_result_count allowed is only 8
+    if google_result_count > 8:
+        google_result_count = 8
+
+    url = 'https://ajax.googleapis.com/ajax/services/search/patent?v=1.0' + \
+          '&rsz=' + str(google_result_count) + \
+          '&q=' + urllib.quote(query)
     response = json.load(urllib2.urlopen(url))
     results  = response['responseData']['results']
 
@@ -32,4 +38,4 @@ def get_nouns(sentence):
 
     return ' '.join(nouns)
 
-#print get_nouns('Washers that clean laundry with bubbles elevant documents will describe washing technologies that clean or induce using bubbles, foam, by means of vacuuming, swirling, inducing flow or other mechanisms')
+# print expand('Washers that clean laundry with bubbles')
