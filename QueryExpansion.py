@@ -25,7 +25,7 @@ def expand(query, google_result_count = 3):
     for result in results:
         abstract = get_abstract(result['patentNumber'])
         title  = result['titleNoFormatting'].encode('ascii', 'ignore')
-        output = ' ' + abstract + ' ' + title;
+        output = ' ' + title;
         # Remove punctuation
         output = ''.join(ch for ch in output if ch not in string.punctuation)
         query += ' ' + output
