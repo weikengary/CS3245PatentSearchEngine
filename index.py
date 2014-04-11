@@ -3,6 +3,9 @@ import getopt
 import sys
 import os
 import cPickle
+import math
+import shutil
+from collections import defaultdict
 from DictEntry import dict_entry
 from PreprocessUtils import PreprocessUtils
 from collections import Counter
@@ -28,9 +31,10 @@ def get_zone_name(tag_name):
     else:
         return ""
     
-def index_document(dictionary, preprocess_utils, filepath, docZoneList, ipc_dict):
+def index_document(dictionary, preprocess_utils, filepath, docZoneList, ipc_dict, doc_length_dict):
     docID = os.path.basename(os.path.splitext(filepath)[0])
     temp_posting_list = {} #store temporary posting list in the following format {term: "docID1.title\tdocID2.title\tdocID2.description ...", ...} later it will be dumped to a temp file
+    term_freq_list = defaultdict(int) #store temp term freq for calculating the document length
     #traverse all tag names
     for tag_name in docZoneList:
         #however, we only concern for title, description(abstract), and category
@@ -46,6 +50,7 @@ def index_document(dictionary, preprocess_utils, filepath, docZoneList, ipc_dict
                 word_list = preprocess_utils.LinguisticParser(content)
                 zone_name = get_zone_name(tag_name)
                 for term in word_list:
+                    term_freq_list[term+zone_name] += 1 #add term freq to term freq list for each term,zone_name pairs (later will be used to calculate the document length)
                     if not temp_posting_list.has_key(term):
                         #create entry in dictionary if it isn't in the dictionary yet
                         if not dictionary.has_key(term):
@@ -62,10 +67,19 @@ def index_document(dictionary, preprocess_utils, filepath, docZoneList, ipc_dict
         temp_file.write(temp_posting_list[term])
         temp_file.close()
 
-def format_posting_list(filepath):
+    #calculate the document length 
+    doc_length = 0
+    for key in term_freq_list:
+        doc_length += pow(term_freq_list[key],2)
+    doc_length = math.sqrt(doc_length)
+    doc_length_dict[docID] = doc_length
+
+def format_posting_list(filepath, doc_length_dict):
     f = open(filepath, 'r')
-    formatted_posting_list = {} #our posting list format will be {docID1 : {title : title_tf, description : description_tf, category : category_tf}, docID2 : ..., ...}
+    formatted_posting_list = {} #our posting list format will be {docID1 : {title : title_weight, description : description_weight, category : category_weight}, docID2 : ..., ...}
+    #weight in our case is tf*idf/doc_length
     docID_list = (f.read()).split(' ')
+    f.close()
     docID_list.remove('') #remove any extra element (empty string)
     for docIDWithZone in docID_list:
         docID = docIDWithZone.split('.')[0]
@@ -81,11 +95,22 @@ def format_posting_list(filepath):
                 formatted_posting_list[docID][zone_name] = 1 #assign the tf value
             else:
                 formatted_posting_list[docID][zone_name] += 1 #update the tf value
-    f.close()
-    os.remove(filepath)
+
+    #calculate the weight for each docID, zone_name
+    doc_freq = len(formatted_posting_list)
+    for docID in formatted_posting_list:
+        for zone_name in formatted_posting_list[docID]:
+            term_freq = formatted_posting_list[docID][zone_name]
+            formatted_posting_list[docID][zone_name] = get_tf_idf(term_freq, doc_freq) #calculate tf-idf
+            formatted_posting_list[docID][zone_name] /= doc_length_dict[docID] #normalize it
     return formatted_posting_list
 
-def merge_posting_list(dictionary, posting_file):
+def get_tf_idf(term_freq, doc_freq):
+    tf = 1 + math.log10(term_freq)
+    idf = math.log10(float(collection_size) / doc_freq)
+    return tf * idf
+
+def merge_posting_list(dictionary, posting_file, doc_length_dict):
     print 'merging'
     postings_stream = file(posting_file,'w')
     list_of_intermediate_posting_list = os.listdir(intermediate_directory_name)
@@ -93,7 +118,7 @@ def merge_posting_list(dictionary, posting_file):
         print 'merging ' + filename + ' with postings.txt'
         if (not(filename == '.DS_Store')):
             filepath = intermediate_directory_name + '/' + filename
-            posting_list = format_posting_list(filepath)
+            posting_list = format_posting_list(filepath, doc_length_dict)
 
             #update the dictionary with writing location (pointer) and the document frequency
             dictionary[filename].posting_pointer = postings_stream.tell()
@@ -101,38 +126,37 @@ def merge_posting_list(dictionary, posting_file):
 
             #dump the posting list to the postings.txt using cPickle
             cPickle.dump(posting_list, postings_stream)
-
-    os.rmdir(intermediate_directory_name)
+    shutil.rmtree(intermediate_directory_name)
     postings_stream.close()
             
 '''
 This function reads, call the process function, finally writes to respective file.
 '''
 def main(file_i,file_d,file_p):
-    doc_count = 0
     files = glob.glob(file_i+"*")
+    global collection_size
+    collection_size = len(files)
     p = PreprocessUtils()
     ipc_dict = p.IPCCodeCategoryParser()
 
     dictionary = {} #dictionary that later will be stored to dictionary.txt with cPickle
+    doc_length_dict = {} #dictionary to store the length of each document for length normalization later
     if not os.path.exists(intermediate_directory_name):
             os.makedirs(intermediate_directory_name) #temp directory to store temporary posting list
     for singleFile in files:
         docID = os.path.basename(os.path.splitext(singleFile)[0])
-        #parse single document
+        #parse and index single document
         print 'parsing ' + docID
         docZoneList, docWordList = p.XMLPatentDocParser(singleFile)
-        #index single document
-        print 'indexing ' + docID
-        index_document(dictionary, p, singleFile, docZoneList, ipc_dict)
-        doc_count += 1
+        index_document(dictionary, p, singleFile, docZoneList, ipc_dict, doc_length_dict)
 
     #merge temporary posting list together
-    merge_posting_list(dictionary, file_p)
+    merge_posting_list(dictionary, file_p, doc_length_dict)
 
     #dump dictionary to dictionary.txt
     dictionary_stream = open(file_d, 'w')
     cPickle.dump(dictionary, dictionary_stream)
+    doc_count = collection_size
     cPickle.dump(doc_count, dictionary_stream)
     dictionary_stream.close()
 

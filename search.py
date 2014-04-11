@@ -28,7 +28,8 @@ def main():
 
     output_stream = open(args.o,'w')
     for score_tuple in scores:
-        print '{: <19}({})'.format(score_tuple[0], score_tuple[1])
+        #print '{: <19}({})'.format(score_tuple[0], score_tuple[1])
+        print score_tuple[0] + '\t' + str(score_tuple[1])
         output_stream.write(score_tuple[0] + ' ')
     print '{} matches found.'.format(len(scores))
     output_stream.close()
@@ -76,7 +77,6 @@ def get_query():
 def search(query):
     scores = defaultdict(float)
     query_term_weights, query_normalization = process_query(query)
-    doc_weights_squared = defaultdict(float)  # For doc normalization factor
     for query_term, query_term_weight in query_term_weights.iteritems():
         postings = get_postings(query_term)
 
@@ -85,10 +85,8 @@ def search(query):
         for doc_id, zone_frequencies in postings.iteritems():
             doc_weight      = get_doc_weight(query_term, zone_frequencies)
             scores[doc_id] += query_term_weight * doc_weight
-            doc_weights_squared[doc_id] += pow(doc_weight, 2)
 
-    doc_normalization = {doc_id: sqrt(sum) for doc_id, sum in doc_weights_squared.iteritems()}
-    normalized_scores = normalize_score(scores, query_normalization, doc_normalization)
+    normalized_scores = normalize_score(scores, query_normalization)
     sorted_scores     = sorted(normalized_scores.iteritems(), key = itemgetter(1), reverse=True)
 
     return sorted_scores;
@@ -105,9 +103,9 @@ def process_query(query):
 
 def get_doc_weight(query_term, zone_frequencies):
     weights    = get_zone_weights()
-    doc_weight = get_tf_idf(query_term, zone_frequencies.get('title', 0))       * weights['title'] + \
-                 get_tf_idf(query_term, zone_frequencies.get('description', 0)) * weights['description'] + \
-                 get_tf_idf(query_term, zone_frequencies.get('category', 0))    * weights['category']
+    doc_weight = zone_frequencies.get('title', 0)      * weights['title'] + \
+                 zone_frequencies.get('description', 0) * weights['description'] + \
+                 zone_frequencies.get('category', 0)   * weights['category']
     return doc_weight
 
 
@@ -147,11 +145,11 @@ def get_normalization_factor(weights):
         sum_of_squares += pow(weight, 2)
     return sqrt(sum_of_squares)
 
-def normalize_score(scores, query_normalization, doc_normalization):
+def normalize_score(scores, query_normalization):
     normalized_scores = defaultdict(float)
     for doc_id, score in scores.iteritems():
-        if query_normalization > 0 and doc_normalization[doc_id] > 0:
-            normalized_scores[doc_id] = score / doc_normalization[doc_id] / query_normalization
+        if query_normalization > 0:
+            normalized_scores[doc_id] = score  / query_normalization
         else:
             normalized_scores[doc_id] = score
     return normalized_scores
