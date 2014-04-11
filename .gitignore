@@ -61,3 +61,7 @@ _temp*
 
 # Compiled python file
 *.pyc
+
+# Special file created
+output.txt
+log*.txt
