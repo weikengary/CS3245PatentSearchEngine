@@ -3,6 +3,7 @@ This module expands the given patent query with the terms collected from
 the top 10 of Google patent search.
 '''
 
+import nltk
 import json
 import urllib
 import urllib2
@@ -20,3 +21,15 @@ def expand(query):
         query += ' ' + output
 
     return query
+
+def get_nouns(sentence):
+    nouns = []
+    results = nltk.pos_tag(sentence.strip().split())
+
+    for result in results:
+        if result[1][:1] == 'N' and result[0] != 'documents':
+            nouns.append(result[0])
+
+    return ' '.join(nouns)
+
+print get_nouns('Washers that clean laundry with bubbles elevant documents will describe washing technologies that clean or induce using bubbles, foam, by means of vacuuming, swirling, inducing flow or other mechanisms')
